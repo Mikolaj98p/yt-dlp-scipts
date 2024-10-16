@@ -2,6 +2,7 @@
 
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import sanitize_filename
+import os
 import os.path
 import sys
 import json
@@ -79,6 +80,9 @@ if __name__ == '__main__':
         }
       }
     }
+    if not os.path.exists('configs'):
+      os.makedirs('configs')
+      pass
     with open('configs/config.json', 'w') as fo:
       json.dump(default_config, fo, indent=2)
       print("\033[32mSample configuration saved\033[0m")
