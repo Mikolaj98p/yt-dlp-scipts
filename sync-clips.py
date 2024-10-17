@@ -23,7 +23,7 @@ class StringFormatDict(dict):
 
     return "NA"
 
-def get_playlist_info(url):
+def get_info(url):
   ydl_opts = {
     'quiet': True,
     'no_warnings': True,
@@ -31,25 +31,25 @@ def get_playlist_info(url):
   }
 
   with YoutubeDL(ydl_opts) as ydl: 
-    info_dict = ydl.extract_info(playlist['url'], download=False)
+    info_dict = ydl.extract_info(url['url'], download=False)
     return info_dict
 
-def download_playlist(config, playlist):
+def download(config, url):
   if 'history_file' in config:
-    config['options']['download_archive'] = config.get('history_file') % StringFormatDict(playlist['extra'])
+    config['options']['download_archive'] = config.get('history_file') % StringFormatDict(url['extra'])
     print(f"[DBG] Download archive: {config['options']['download_archive']}")
     pass
   
   with YoutubeDL(config['options']) as ydl:
-    ydl.download(playlist['url'])
+    ydl.download(url['url'])
     pass
 
   pass
 
 if __name__ == '__main__':
-  if not os.path.isfile('configs/config.json'):
+  if not os.path.isfile('configs/sync-clip.json'):
     default_config = {
-      "playlists": [
+      "urls": [
         {
           "url": "paste url here",
           "config": "example_cfg",
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     if not os.path.exists('configs'):
       os.makedirs('configs')
       pass
-    with open('configs/config.json', 'w') as fo:
+    with open('configs/sync-clip.json', 'w') as fo:
       json.dump(default_config, fo, indent=2)
       print("\033[32mSample configuration saved\033[0m")
       pass
@@ -91,53 +91,53 @@ if __name__ == '__main__':
     pass
 
 
-  with open('configs/config.json') as f:
+  with open('configs/sync-clip.json') as f:
     config = json.load(f)
 
-    with open('configs/config.bck.json', 'w') as fo:
+    with open('configs/sync-clip.bck.json', 'w') as fo:
       json.dump(config, fo, indent=2)
       pass
     
-    for playlist in config['playlists']:
+    for url in config['urls']:
       try:
-        if 'url' not in playlist or not playlist['url']:
+        if 'url' not in url or not url['url']:
           continue
 
-        if 'config' not in playlist or not playlist['config']:
+        if 'config' not in url or not url['config']:
           continue
 
-        if playlist.get('disable', 'false') in ['true', 'skip']:
+        if url.get('disable', 'false') in ['true', 'skip']:
           continue
 
-        playlist_config_name = playlist.get('config')
+        url_config_name = url.get('config')
 
-        if playlist_config_name not in config['configs'] or not config['configs'][playlist_config_name]:
+        if url_config_name not in config['configs'] or not config['configs'][url_config_name]:
           continue
 
-        playlist['extra'] = get_playlist_info(playlist['url'])
+        url['extra'] = get_info(url)
 
-        playlist_config = copy.deepcopy(config['configs'].get(playlist_config_name))
+        url_config = copy.deepcopy(config['configs'].get(url_config_name))
 
-        download_playlist(playlist_config, playlist)
+        download(url_config, url)
 
-        if playlist.get('disable', 'false') == 'afterDownload' or playlist_config.get('disableAfterDownload', False):
-          playlist['disable'] = 'true'
+        if url.get('disable', 'false') == 'afterDownload' or url_config.get('disableAfterDownload', False):
+          url['disable'] = 'true'
           pass
         
-        del playlist['extra']
+        del url['extra']
 
         pass
       except Exception as e:
         print(e)
         print({
           "exdended": {
-            "playlist": playlist,
+            "url": url,
             "config": config
         }})
         sys.exit(-1)
         pass
       pass
-    with open('configs/config.json', 'w') as fo:
+    with open('configs/sync-clip.json', 'w') as fo:
       json.dump(config, fo, indent=2)
     pass
   pass
