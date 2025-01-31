@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from yt_dlp import YoutubeDL
-from yt_dlp.utils import sanitize_filename
+from yt_dlp.utils import sanitize_filename, DownloadError
 import os
 import os.path
 import sys
