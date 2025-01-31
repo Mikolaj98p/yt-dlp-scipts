@@ -127,6 +127,13 @@ if __name__ == '__main__':
         del url['extra']
 
         pass
+      except DownloadError as e:
+        if e.msg.endswith('YouTube said: The playlist does not exist.'):
+          pass
+        else:
+          sys.exit(1)
+          pass
+        pass
       except Exception as e:
         print(e)
         print({
