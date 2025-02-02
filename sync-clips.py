@@ -119,7 +119,7 @@ if __name__ == '__main__':
         url_config = copy.deepcopy(config['configs'].get(url_config_name))
 
         if 'retries' in url_config['options'] and url_config['options']['retries'] == 'infinite':
-          url_config['retries'] = float('inf')
+          url_config['options']['retries'] = float('inf')
           pass
 
         download(url_config, url)
